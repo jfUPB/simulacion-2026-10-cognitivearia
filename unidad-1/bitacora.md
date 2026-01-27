@@ -96,14 +96,16 @@ class WalkerBiased {
     this.size = 6;
     this.target = targetWalker;
 
-    // Color fijo: blanco
-    this.col = color(255);
-
     // Paso fijo (SIN Lévy)
     this.stepSize = 1;
 
     // Intensidad del sesgo hacia el líder
     this.biasStrength = 0.6;
+
+    // Parámetros de la gaussiana para el gris (ajústalos a gusto)
+    this.grayMean = 200; // promedio (más alto => más claro)
+    this.grayStd = 35;   // desviación (más alto => más variación)
+    this.col = color(255); // inicial
   }
 
   show() {
@@ -113,6 +115,11 @@ class WalkerBiased {
   }
 
   step() {
+    // 1) Color gris gaussiano (cambia cada paso)
+    const g = constrain(randomGaussian(this.grayMean, this.grayStd), 0, 255);
+    this.col = color(g);
+
+    // 2) Sesgo hacia el líder
     const dx = this.target.x - this.x;
     const dy = this.target.y - this.y;
 
@@ -129,21 +136,17 @@ class WalkerBiased {
       choice = floor(random(4));
     }
 
-    // Movimiento (sin cambiar color)
-    if (choice === 0) {
-      this.x += this.stepSize;
-    } else if (choice === 1) {
-      this.x -= this.stepSize;
-    } else if (choice === 2) {
-      this.y += this.stepSize;
-    } else {
-      this.y -= this.stepSize;
-    }
+    // 3) Movimiento (paso fijo)
+    if (choice === 0) this.x += this.stepSize;
+    else if (choice === 1) this.x -= this.stepSize;
+    else if (choice === 2) this.y += this.stepSize;
+    else this.y -= this.stepSize;
 
     this.x = constrain(this.x, 0, width - 1);
     this.y = constrain(this.y, 0, height - 1);
   }
 }
+
 
 
 
@@ -172,6 +175,7 @@ plt.title("Lévy step size: step = minStep * (1 - r)^(-1/alpha)")
 plt.show()
 
 <img width="632" height="418" alt="image" src="https://github.com/user-attachments/assets/e66ffb86-e3dd-4403-b33d-f385422959c7" />
+
 
 
 
