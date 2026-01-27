@@ -149,3 +149,29 @@ class WalkerBiased {
 
 ## Bitácora de reflexión
 
+Explicación de Levy
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Parameters
+minStep = 1
+alpha = 1.5
+
+# Independent variable r (avoid 1 to prevent infinity)
+r = np.linspace(0, 0.999, 1000)
+
+# Function
+step = minStep * (1 - r) ** (-1 / alpha)
+
+# Plot
+plt.figure()
+plt.plot(r, step)
+plt.xlabel("r")
+plt.ylabel("step(r)")
+plt.title("Lévy step size: step = minStep * (1 - r)^(-1/alpha)")
+plt.show()
+
+<img width="632" height="418" alt="image" src="https://github.com/user-attachments/assets/e66ffb86-e3dd-4403-b33d-f385422959c7" />
+
+
+
