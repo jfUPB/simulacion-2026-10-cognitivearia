@@ -6,7 +6,146 @@
 
 
 ## Bitácora de aplicación 
+let walkerA; // líder (con Lévy)
+let walkerB; // seguidor (sesgado hacia A, sin Lévy)
+
+function setup() {
+  createCanvas(640, 240);
+  walkerA = new WalkerLevy(width / 2, height / 2);
+
+  // Aparece en un punto diferente (puedes cambiarlo si quieres)
+  walkerB = new WalkerBiased(width * 0.2, height * 0.8, walkerA);
+
+  background(35);
+}
+
+function draw() {
+  walkerA.step();
+  walkerA.show();
+
+  walkerB.step();
+  walkerB.show();
+}
+
+/* ---------- WALKER A: Lévy + colores por dirección ---------- */
+class WalkerLevy {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+
+    this.size = 6;
+
+    // Colores por dirección
+    this.cRight = color(255, 0, 0);     // derecha
+    this.cLeft  = color(0, 255, 0);     // izquierda
+    this.cDown  = color(0, 140, 255);   // abajo
+    this.cUp    = color(255, 220, 0);   // arriba
+    this.col = color(255);
+
+    // Lévy
+    this.minStep = 1;
+    this.maxStep = 80;
+    this.alphaLeft = 2.6;
+    this.alphaRight = 0.9;
+  }
+
+  show() {
+    noStroke();
+    fill(this.col);
+    ellipse(this.x, this.y, this.size, this.size);
+  }
+
+  getAlphaFromMouse() {
+    const x = constrain(mouseX, 0, width);
+    return map(x, 0, width, this.alphaLeft, this.alphaRight);
+  }
+
+  levyStep(alpha) {
+    const r = random(1);
+    let step = this.minStep * pow(1 - r, -1 / alpha);
+    return constrain(step, this.minStep, this.maxStep);
+  }
+
+  step() {
+    const alpha = this.getAlphaFromMouse();
+    const stepSize = this.levyStep(alpha);
+
+    const choice = floor(random(4));
+
+    if (choice === 0) {
+      this.x += stepSize; this.col = this.cRight;
+    } else if (choice === 1) {
+      this.x -= stepSize; this.col = this.cLeft;
+    } else if (choice === 2) {
+      this.y += stepSize; this.col = this.cDown;
+    } else {
+      this.y -= stepSize; this.col = this.cUp;
+    }
+
+    this.x = constrain(this.x, 0, width - 1);
+    this.y = constrain(this.y, 0, height - 1);
+  }
+}
+
+/* ---------- WALKER B: sesgado hacia Walker A, sin Lévy ---------- */
+class WalkerBiased {
+  constructor(x, y, targetWalker) {
+    this.x = x;
+    this.y = y;
+
+    this.size = 6;
+    this.target = targetWalker;
+
+    // Color fijo: blanco
+    this.col = color(255);
+
+    // Paso fijo (SIN Lévy)
+    this.stepSize = 1;
+
+    // Intensidad del sesgo hacia el líder
+    this.biasStrength = 0.6;
+  }
+
+  show() {
+    noStroke();
+    fill(this.col);
+    ellipse(this.x, this.y, this.size, this.size);
+  }
+
+  step() {
+    const dx = this.target.x - this.x;
+    const dy = this.target.y - this.y;
+
+    const doBiased = random(1) < this.biasStrength;
+    let choice;
+
+    if (doBiased) {
+      if (abs(dx) > abs(dy)) {
+        choice = (dx > 0) ? 0 : 1; // derecha / izquierda
+      } else {
+        choice = (dy > 0) ? 2 : 3; // abajo / arriba
+      }
+    } else {
+      choice = floor(random(4));
+    }
+
+    // Movimiento (sin cambiar color)
+    if (choice === 0) {
+      this.x += this.stepSize;
+    } else if (choice === 1) {
+      this.x -= this.stepSize;
+    } else if (choice === 2) {
+      this.y += this.stepSize;
+    } else {
+      this.y -= this.stepSize;
+    }
+
+    this.x = constrain(this.x, 0, width - 1);
+    this.y = constrain(this.y, 0, height - 1);
+  }
+}
 
 
 
 ## Bitácora de reflexión
+
